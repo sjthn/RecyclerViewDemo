@@ -40,4 +40,8 @@ public class UsersData {
     public List<User> getUsersList() {
         return usersList;
     }
+
+    public User getNewUser() {
+        return ((User) usersList.get(5));
+    }
 }

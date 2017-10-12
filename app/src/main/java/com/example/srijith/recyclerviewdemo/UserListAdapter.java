@@ -14,10 +14,17 @@ import java.util.List;
  * Created by Srijith on 08-10-2017.
  */
 
-public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
+        View.OnClickListener {
     private static final int USER_TYPE = 1;
     private static final int HEADER_TYPE = 2;
     private List<User> usersList;
+    private UserItemCallback itemCallback;
+
+    public UserListAdapter(UserItemCallback itemCallback) {
+
+        this.itemCallback = itemCallback;
+    }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -26,6 +33,7 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             case USER_TYPE:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.layout_user_list_item, parent, false);
+                view.setOnClickListener(this);
                 return new UserViewHolder(view);
             case HEADER_TYPE:
                 view = LayoutInflater.from(parent.getContext())
@@ -34,6 +42,7 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             default:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.layout_user_list_item, parent, false);
+                view.setOnClickListener(this);
                 return new UserViewHolder(view);
         }
     }
@@ -68,5 +77,35 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void setUserList(List<User> usersList) {
         this.usersList = usersList;
         notifyDataSetChanged();
+    }
+
+    public void addNewUser(int position, User newUser) {
+        if (usersList != null) {
+            usersList.add(position, newUser);
+        }
+    }
+
+    public void removeUser(int position) {
+        if (usersList != null) {
+            usersList.remove(position);
+        }
+    }
+
+    public void changeUser(int position) {
+        if (usersList != null) {
+            User user = usersList.get(position);
+            String username = "Wyatt Fuller";
+            String imageUrl = "https://randomuser.me/api/portraits/men/12.jpg";
+            usersList.set(position, new User(user.getId(), username, imageUrl, user.getType()));
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        itemCallback.onUserItemSelected(v);
+    }
+
+    public interface UserItemCallback {
+        void onUserItemSelected(View v);
     }
 }
