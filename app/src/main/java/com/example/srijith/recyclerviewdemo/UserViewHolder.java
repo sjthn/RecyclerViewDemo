@@ -13,11 +13,13 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
 
     ImageView userAvatar;
     TextView username;
+    ImageView reorderView;
 
     public UserViewHolder(View itemView) {
         super(itemView);
 
         userAvatar = itemView.findViewById(R.id.imageview_profile);
         username = itemView.findViewById(R.id.textview_name);
+        reorderView = itemView.findViewById(R.id.imageview_reorder);
     }
 }

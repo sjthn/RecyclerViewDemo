@@ -18,6 +18,13 @@ public class User {
         this.type = type;
     }
 
+    public User(User user) {
+        this.id = user.id;
+        this.name = user.name;
+        this.imageUrl = user.imageUrl;
+        this.type = user.type;
+    }
+
     public int getId() {
         return id;
     }

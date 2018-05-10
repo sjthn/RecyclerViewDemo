@@ -1,8 +1,10 @@
 package com.example.srijith.recyclerviewdemo;
 
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -15,16 +17,11 @@ import java.util.List;
  */
 
 public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements
-        View.OnClickListener {
+        SwipeAndDragHelper.ActionCompletionContract {
     private static final int USER_TYPE = 1;
     private static final int HEADER_TYPE = 2;
     private List<User> usersList;
-    private UserItemCallback itemCallback;
-
-    public UserListAdapter(UserItemCallback itemCallback) {
-
-        this.itemCallback = itemCallback;
-    }
+    private ItemTouchHelper touchHelper;
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -33,7 +30,6 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             case USER_TYPE:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.layout_user_list_item, parent, false);
-                view.setOnClickListener(this);
                 return new UserViewHolder(view);
             case HEADER_TYPE:
                 view = LayoutInflater.from(parent.getContext())
@@ -42,19 +38,28 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
             default:
                 view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.layout_user_list_item, parent, false);
-                view.setOnClickListener(this);
                 return new UserViewHolder(view);
         }
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
         int itemViewType = getItemViewType(position);
         if (itemViewType == USER_TYPE) {
             ((UserViewHolder) holder).username.setText(usersList.get(position).getName());
             Glide.with(holder.itemView).load(usersList.get(position).getImageUrl()).into(((UserViewHolder) holder).userAvatar);
+            ((UserViewHolder) holder).reorderView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        touchHelper.startDrag(holder);
+                    }
+                    return false;
+                }
+            });
         } else {
-            ((SectionHeaderViewHolder) holder).sectionTitle.setText(usersList.get(position).getType());
+            SectionHeaderViewHolder headerViewHolder = (SectionHeaderViewHolder) holder;
+            headerViewHolder.sectionTitle.setText(usersList.get(position).getType());
         }
     }
 
@@ -65,13 +70,11 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public int getItemViewType(int position) {
-        int type;
-        if (!TextUtils.isEmpty(usersList.get(position).getName())) {
-            type = USER_TYPE;
+        if (TextUtils.isEmpty(usersList.get(position).getName())) {
+            return HEADER_TYPE;
         } else {
-            type = HEADER_TYPE;
+            return USER_TYPE;
         }
-        return type;
     }
 
     public void setUserList(List<User> usersList) {
@@ -79,33 +82,23 @@ public class UserListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         notifyDataSetChanged();
     }
 
-    public void addNewUser(int position, User newUser) {
-        if (usersList != null) {
-            usersList.add(position, newUser);
-        }
-    }
-
-    public void removeUser(int position) {
-        if (usersList != null) {
-            usersList.remove(position);
-        }
-    }
-
-    public void changeUser(int position) {
-        if (usersList != null) {
-            User user = usersList.get(position);
-            String username = "Wyatt Fuller";
-            String imageUrl = "https://randomuser.me/api/portraits/men/12.jpg";
-            usersList.set(position, new User(user.getId(), username, imageUrl, user.getType()));
-        }
+    @Override
+    public void onViewMoved(int oldPosition, int newPosition) {
+        User targetUser = usersList.get(oldPosition);
+        User user = new User(targetUser);
+        usersList.remove(oldPosition);
+        usersList.add(newPosition, user);
+        notifyItemMoved(oldPosition, newPosition);
     }
 
     @Override
-    public void onClick(View v) {
-        itemCallback.onUserItemSelected(v);
+    public void onViewSwiped(int position) {
+        usersList.remove(position);
+        notifyItemRemoved(position);
     }
 
-    public interface UserItemCallback {
-        void onUserItemSelected(View v);
+    public void setTouchHelper(ItemTouchHelper touchHelper) {
+
+        this.touchHelper = touchHelper;
     }
 }

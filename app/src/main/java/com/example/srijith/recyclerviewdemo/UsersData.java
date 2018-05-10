@@ -9,7 +9,7 @@ import java.util.List;
 
 public class UsersData {
 
-    private List usersList = new ArrayList<User>() {
+    private List<User> usersList = new ArrayList<User>() {
         {
             add(new User(0, "", "", "Developers"));
             add(new User(1, "Frederick Hoffman", "https://randomuser.me/api/portraits/men/52.jpg", "Developers"));
@@ -39,9 +39,5 @@ public class UsersData {
 
     public List<User> getUsersList() {
         return usersList;
-    }
-
-    public User getNewUser() {
-        return ((User) usersList.get(5));
     }
 }

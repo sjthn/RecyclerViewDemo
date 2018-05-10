@@ -1,5 +1,7 @@
 package com.example.srijith.recyclerviewdemo;
 
+import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -16,4 +18,5 @@ public class SectionHeaderViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         sectionTitle = itemView.findViewById(R.id.textview_section_header);
     }
+
 }
